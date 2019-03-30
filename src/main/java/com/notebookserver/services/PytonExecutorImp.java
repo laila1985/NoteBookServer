@@ -36,9 +36,14 @@ public class PytonExecutorImp implements PytonExecutor {
 			}
 			
 			
+			if (code.contains("=")) {
+				String executedCode = StringUtils.replace(code, "print", " ");
+				fileManagement.clearFile(fileName);
+				fileManagement.writeInFile(fileName,code);
+				return "";
+			// Print affiche result
+			}else if (code.contains("print")) {
 			
-			// Print result
-			if (code.contains("print")) {
 				// remove print
 				String executedCode = StringUtils.replace(code, "print", " ");
 				if (map == null) {
@@ -55,12 +60,7 @@ public class PytonExecutorImp implements PytonExecutor {
 
 				System.out.println("****** Python code ended  *****************");
 				interp.close();
-			} else if (code.contains("=")) {
-				
-				fileManagement.clearFile(fileName);
-				fileManagement.writeInFile(fileName,code);
-				return "";
-			}
+			} 
 
 		} catch (Exception ex) {
 			log.error("Exception while creating python interpreter: " + ex.toString());
