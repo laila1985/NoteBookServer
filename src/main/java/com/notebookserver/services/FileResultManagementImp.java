@@ -23,13 +23,13 @@ public class FileResultManagementImp implements FileResultManagement {
 	 * @see com.service.python.FileResultManagement#clearFile()
 	 */
 	@Override
-	public void clearFile( String fileName) {
+	public void clearFile(String fileName) throws IOException {
 		// TODO Auto-generated method stub
 		try {
 			FileChannel.open(Paths.get(fileName), StandardOpenOption.WRITE).truncate(0).close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IOException();
 		}
 
 	}
@@ -40,16 +40,19 @@ public class FileResultManagementImp implements FileResultManagement {
 	 * @see com.service.python.FileResultManagement#writeInFile(java.lang.String)
 	 */
 	@Override
-	public Boolean writeInFile(String fileName,String data) {
+	public Boolean writeInFile(String fileName,String data) throws FileNotFoundException,UnsupportedEncodingException {
 
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(fileName, "UTF-8");
 			writer.println(data);
 			writer.close();
-		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new FileNotFoundException();
+		}catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			throw new UnsupportedEncodingException();
 		}
 		return Boolean.TRUE;
 
@@ -61,7 +64,7 @@ public class FileResultManagementImp implements FileResultManagement {
 	 */
 
 	@Override
-	public Map<String, Integer> readFromFile(String fileName) {
+	public Map<String, Integer> readFromFile(String fileName) throws IOException {
 		
 		Map<String, Integer> map = null;
 		try {
@@ -82,7 +85,7 @@ public class FileResultManagementImp implements FileResultManagement {
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IOException();
 		}
 		return map;
 	}

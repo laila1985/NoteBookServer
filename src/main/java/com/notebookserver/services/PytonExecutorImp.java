@@ -10,6 +10,7 @@ import org.python.jline.internal.Log;
 import org.python.util.PythonInterpreter;
 import org.springframework.util.StringUtils;
 
+import com.notebookserver.exceptions.WrongCodeException;
 import com.notebookserver.model.CodeSnippet;
 
 import ch.qos.logback.classic.Logger;
@@ -79,7 +80,7 @@ public class PytonExecutorImp implements PytonExecutor {
 	}
 
 	@Override
-	public String CheckAndExecutCode(CodeSnippet code) {
+	public String CheckAndExecutCode(CodeSnippet code) throws IOException,WrongCodeException {
 
 		JSONObject entity = new JSONObject();
 		String text = code.getCode().toString();
@@ -101,17 +102,15 @@ public class PytonExecutorImp implements PytonExecutor {
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new IOException();
 			}
 			// The code should start by %
 		} else if (!StringUtils.startsWithIgnoreCase(text, "%")) {
-			entity.put("error", "Please respect the following format : %<interpreter-name><whitespace><code>");
-			Log.info(entity.toString());
+			throw new WrongCodeException("Please respect the following format : %<interpreter-name><whitespace><code>");
 
 			// Only python interpreter has been imlepemented
 		} else {
-			entity.put("error", "Only python interpreter has been  imlepemented!! ");
-			Log.info(entity.toString());
+			throw new WrongCodeException("Only python interpreter has been  imlepemented!! ");
 
 		}
 

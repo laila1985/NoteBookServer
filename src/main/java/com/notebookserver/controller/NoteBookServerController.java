@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.notebookserver.exceptions.WrongCodeException;
 import com.notebookserver.model.CodeSnippet;
 import com.notebookserver.services.PytonExecutor;
 import com.notebookserver.services.PytonExecutorImp;
@@ -39,7 +40,7 @@ public class NoteBookServerController {
 	}
 
 	@PostMapping(path = "/execute", produces = MediaType.APPLICATION_JSON_VALUE)
-	public String executing(@RequestBody CodeSnippet code, Model model, HttpServletRequest request) {
+	public String executing(@RequestBody CodeSnippet code, Model model, HttpServletRequest request) throws WrongCodeException, IOException {
 
 		@SuppressWarnings("unchecked")
 		List<String> messages = (List<String>) request.getSession().getAttribute("MY_SESSION_MESSAGES");
