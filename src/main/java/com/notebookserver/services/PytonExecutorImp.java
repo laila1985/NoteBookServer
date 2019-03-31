@@ -42,7 +42,7 @@ public class PytonExecutorImp implements PytonExecutor {
 				
 				// verify the code before parsing it in the file:
 				try {
-					interp.exec(executedCode);
+					interp.exec(executedCode.trim());
 				} catch (Exception ex) {
 					throw new PytonExecutionException(interp.getSystemState());
 				}
