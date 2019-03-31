@@ -105,7 +105,7 @@ public class PytonExecutorImp implements PytonExecutor {
 				throw new IOException();
 			}
 			// The code should start by %
-		} else if (!StringUtils.startsWithIgnoreCase(text, "%")) {
+		} else if (!StringUtils.startsWithIgnoreCase(text, "%") | StringUtils.startsWithIgnoreCase(text, "% ")) {
 			throw new WrongCodeException("Please respect the following format : %<interpreter-name><whitespace><code>");
 
 			// Only python interpreter has been imlepemented
