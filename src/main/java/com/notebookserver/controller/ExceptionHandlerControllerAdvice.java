@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import com.notebookserver.exceptions.PytonExecutionException;
 import com.notebookserver.exceptions.WrongCodeException;
 import com.notebookserver.model.ErrorDetails;
 
@@ -22,7 +23,7 @@ public class ExceptionHandlerControllerAdvice {
 	  public final ResponseEntity<ErrorDetails> handleUserNotFoundException(WrongCodeException ex, WebRequest request) {
 	    ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
 	        request.getDescription(false));
-	    return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+	    return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
 	  }
 	
 	
@@ -58,6 +59,13 @@ public class ExceptionHandlerControllerAdvice {
 	
 	@ExceptionHandler(UnsupportedEncodingException.class)
 	  public final ResponseEntity<ErrorDetails> handleUnsupportedEncodingException(UnsupportedEncodingException ex, WebRequest request) {
+	    ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
+	        request.getDescription(false));
+	    return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+	  }
+	
+	@ExceptionHandler(PytonExecutionException.class)
+	  public final ResponseEntity<ErrorDetails> handlePytonExecutionException(PytonExecutionException ex, WebRequest request) {
 	    ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
 	        request.getDescription(false));
 	    return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);

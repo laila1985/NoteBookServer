@@ -6,18 +6,16 @@ import java.util.Map;
 import org.json.JSONObject;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
-import org.python.jline.internal.Log;
 import org.python.util.PythonInterpreter;
 import org.springframework.util.StringUtils;
 
+import com.notebookserver.exceptions.PytonExecutionException;
 import com.notebookserver.exceptions.WrongCodeException;
 import com.notebookserver.model.CodeSnippet;
 
-import ch.qos.logback.classic.Logger;
 
 public class PytonExecutorImp implements PytonExecutor {
 
-	private Logger log;
 	private final String fileName = "result.txt";
 
 	private int variable;
@@ -26,7 +24,7 @@ public class PytonExecutorImp implements PytonExecutor {
 	public String execute(String code) throws IOException {
 
 		PyObject x = null;
-		try {
+		
 			PythonInterpreter interp = new PythonInterpreter();
 			System.out.println("****** Python code process Started *******");
 
@@ -41,6 +39,14 @@ public class PytonExecutorImp implements PytonExecutor {
 
 			if (code.contains("=")) {
 				String executedCode = StringUtils.replace(code, "print", " ");
+				
+				// verify the code before parsing it in the file:
+				try {
+					interp.exec(executedCode);
+				} catch (Exception ex) {
+					throw new PytonExecutionException(interp.getSystemState());
+				}
+				
 				fileManagement.clearFile(fileName);
 				fileManagement.writeInFile(fileName, code);
 				return "";
@@ -51,23 +57,30 @@ public class PytonExecutorImp implements PytonExecutor {
 				String executedCode = StringUtils.replace(code, "print", " ");
 				if (map == null) {
 					interp.set("a", new PyInteger(0));
-					interp.exec("a= " + executedCode);
-					x = interp.get("a");
+
+					// handle exception if execution went wrong
+					try {
+						interp.exec("a= " + executedCode);
+						x = interp.get("a");
+					} catch (Exception ex) {
+						throw new PytonExecutionException(interp.getSystemState());
+					}
 				} else {
-					interp.set("a", new PyInteger(variable));
-					interp.exec("print a ");
-					interp.exec("a=" + executedCode);
-					x = interp.get("a");
+					try {
+						interp.set("a", new PyInteger(variable));
+						interp.exec("print a ");
+						interp.exec("a=" + executedCode);
+						x = interp.get("a");
+
+					} catch (Exception ex) {
+						throw new PytonExecutionException(interp.getSystemState());
+					}
 
 				}
 
 				System.out.println("****** Python code ended  *****************");
 				interp.close();
 			}
-
-		} catch (Exception ex) {
-			log.error("Exception while creating python interpreter: " + ex.toString());
-		}
 
 		return x.toString();
 	}
@@ -80,7 +93,7 @@ public class PytonExecutorImp implements PytonExecutor {
 	}
 
 	@Override
-	public String CheckAndExecutCode(CodeSnippet code) throws IOException,WrongCodeException {
+	public String CheckAndExecutCode(CodeSnippet code) throws IOException, WrongCodeException {
 
 		JSONObject entity = new JSONObject();
 		String text = code.getCode().toString();
@@ -94,11 +107,9 @@ public class PytonExecutorImp implements PytonExecutor {
 				System.out.println("The executed code: " + text);
 				String result = execute(text);
 
-				Log.info("The result value is ===>" + result);
 
 				entity = new JSONObject();
 				entity.put("result", result);
-				Log.info(entity.toString());
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -117,7 +128,5 @@ public class PytonExecutorImp implements PytonExecutor {
 		return entity.toString();
 
 	}
-	
-	
 
 }
